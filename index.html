@@ -5,133 +5,143 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Large Orders Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d0f16;color:#e2e8f0;min-height:100vh}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#07070e;color:#e2e8f0;min-height:100vh}
 
 /* HEADER */
-.header{background:#111320;border-bottom:1px solid #1e2233;padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
-.header-left{display:flex;align-items:center;gap:10px}
-.logo{width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff}
-.header h1{font-size:15px;font-weight:700;color:#f1f5f9}
-.header-meta{font-size:10px;color:#475569;margin-top:1px}
-.live-badge{display:flex;align-items:center;gap:5px;background:#0a1f10;border:1px solid #14532d;padding:4px 10px;border-radius:20px;font-size:10px;color:#22c55e}
-.pulse{width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.header{background:linear-gradient(180deg,#0f0f1e 0%,#0a0a17 100%);border-bottom:1px solid rgba(255,255,255,0.06);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,#7c3aed 0%,#2563eb 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff;box-shadow:0 0 24px rgba(124,58,237,0.45),0 2px 8px rgba(0,0,0,0.4)}
+.header h1{font-size:15px;font-weight:700;color:#f8fafc;letter-spacing:-.3px}
+.header-meta{font-size:10px;color:#3f4859;margin-top:2px;letter-spacing:.2px}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:5px 13px;border-radius:20px;font-size:10px;color:#10b981;font-weight:600;letter-spacing:.4px}
+.pulse{width:6px;height:6px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.5)}}
 
 /* TABS */
-.tabs{display:flex;background:#0d0f16;border-bottom:1px solid #1e2233;padding:0 20px}
-.tab{padding:10px 18px;cursor:pointer;font-size:12px;font-weight:600;color:#475569;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.3px}
-.tab:hover{color:#94a3b8}
-.tab.active{color:#818cf8;border-bottom-color:#818cf8}
+.tabs{display:flex;background:#07070e;border-bottom:1px solid rgba(255,255,255,0.05);padding:0 26px;gap:2px}
+.tab{padding:11px 20px;cursor:pointer;font-size:12px;font-weight:600;color:#3f4859;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.3px;border-radius:8px 8px 0 0}
+.tab:hover{color:#94a3b8;background:rgba(255,255,255,0.03)}
+.tab.active{color:#a78bfa;border-bottom-color:#7c3aed;background:rgba(124,58,237,0.05)}
 
-.page{display:none;padding:14px 20px}
+.page{display:none;padding:18px 26px}
 .page.active{display:block}
 
-/* AGING ROW */
-.aging-row{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:12px}
-.aging-card{border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;border:1px solid transparent;position:relative;overflow:hidden}
-.aging-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
-.aging-card:hover{transform:translateY(-1px);filter:brightness(1.1)}
-.aging-label{font-size:10px;font-weight:700;letter-spacing:.8px;margin-bottom:6px;opacity:.7}
-.aging-num{font-size:28px;font-weight:900;line-height:1;margin-bottom:4px}
-.aging-gmv{font-size:10px;opacity:.6;margin-bottom:1px}
-.aging-boxes{font-size:10px;font-weight:600;opacity:.9}
+/* AGING CARDS */
+.aging-row{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:16px}
+.aging-card{border-radius:14px;padding:16px;cursor:pointer;transition:all .25s;border:1px solid transparent;position:relative;overflow:hidden}
+.aging-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,transparent 60%);pointer-events:none}
+.aging-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.4);filter:brightness(1.12)}
+.aging-label{font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;opacity:.8}
+.aging-num{font-size:32px;font-weight:900;line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.aging-gmv{font-size:10px;opacity:.55;margin-bottom:2px}
+.aging-boxes{font-size:10px;font-weight:700;opacity:.85}
 
 /* KPI ROW */
-.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
-.kpi{background:#111320;border-radius:10px;padding:14px 16px;border:1px solid #1e2233}
-.kpi-num{font-size:30px;font-weight:900;line-height:1;margin-bottom:5px}
-.kpi-label{font-size:10px;font-weight:700;letter-spacing:.6px;color:#64748b;text-transform:uppercase;margin-bottom:3px}
-.kpi-sub{font-size:10px;color:#475569}
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);border-radius:14px;padding:18px 16px;border:1px solid rgba(255,255,255,0.07);box-shadow:0 2px 8px rgba(0,0,0,0.3);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,0.4)}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 10%,rgba(124,58,237,0.6) 50%,transparent 90%)}
+.kpi-num{font-size:28px;font-weight:900;line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.kpi-label{font-size:9px;font-weight:700;letter-spacing:.9px;color:#3f4859;text-transform:uppercase;margin-bottom:4px}
+.kpi-sub{font-size:10px;color:#2d3344}
 
 /* CHART GRID */
 .chart-grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
 .chart-grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
-.chart-card{background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px}
-.chart-title{font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.chart-card{background:linear-gradient(145deg,rgba(255,255,255,0.035) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.25)}
+.chart-title{font-size:10px;font-weight:700;letter-spacing:.8px;color:#3f4859;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 
 /* Zone table */
-.zone-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid #1a1d2e;font-size:12px}
+.zone-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px}
 .zone-row:last-child{border-bottom:none}
 .zone-name{flex:1;font-weight:600;color:#e2e8f0}
-.zone-count{width:36px;text-align:right;font-weight:700;color:#f1f5f9}
-.zone-gmv{width:60px;text-align:right;color:#94a3b8;font-size:11px}
-.zone-boxes{width:50px;text-align:right;font-weight:600;color:#818cf8;font-size:11px}
+.zone-count{width:36px;text-align:right;font-weight:700;color:#f8fafc}
+.zone-gmv{width:60px;text-align:right;color:#4b5563;font-size:11px}
+.zone-boxes{width:50px;text-align:right;font-weight:700;color:#a78bfa;font-size:11px}
 
 /* Pipeline */
-.pipeline-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #1a1d2e;font-size:12px}
+.pipeline-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px}
 .pipeline-row:last-child{border-bottom:none}
 .pipeline-label{flex:1;color:#e2e8f0;font-weight:500}
-.pipeline-count{width:36px;text-align:right;font-weight:700;color:#f1f5f9}
-.pipeline-gmv{width:65px;text-align:right;color:#94a3b8;font-size:11px}
+.pipeline-count{width:36px;text-align:right;font-weight:700;color:#f8fafc}
+.pipeline-gmv{width:65px;text-align:right;color:#4b5563;font-size:11px}
 .pipeline-boxes{width:55px;text-align:right;font-size:11px;font-weight:600}
 
 /* FF legend */
-.ff-legend{margin-top:8px}
-.ff-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:11px}
-.ff-dot{width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0}
-.ff-name{flex:1;color:#94a3b8}
-.ff-count{font-weight:700;color:#f1f5f9}
+.ff-legend{margin-top:10px}
+.ff-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:11px}
+.ff-dot{width:8px;height:8px;border-radius:50%;margin-right:7px;flex-shrink:0}
+.ff-name{flex:1;color:#4b5563}
+.ff-count{font-weight:700;color:#f8fafc}
 
-/* ALL ORDERS TABLE */
-.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.filter-input{background:#111320;border:1px solid #1e2233;color:#e2e8f0;padding:6px 11px;border-radius:7px;font-size:12px;outline:none}
-.filter-input:focus{border-color:#6366f1}
-.filter-select{background:#111320;border:1px solid #1e2233;color:#e2e8f0;padding:6px 11px;border-radius:7px;font-size:12px;cursor:pointer;outline:none}
-.filter-btn{background:#6366f1;color:#fff;border:none;padding:6px 13px;border-radius:7px;font-size:12px;cursor:pointer;font-weight:600}
-.filter-btn.sec{background:#1e2233;color:#94a3b8}
-.badge{background:#1e2233;border:1px solid #2d3148;padding:4px 10px;border-radius:7px;font-size:11px;color:#64748b}
+/* FILTERS + TABLE */
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-input{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:#e2e8f0;padding:8px 13px;border-radius:9px;font-size:12px;outline:none;transition:all .2s;font-family:inherit}
+.filter-input:focus{border-color:rgba(124,58,237,0.55);background:rgba(124,58,237,0.06);box-shadow:0 0 0 3px rgba(124,58,237,0.12)}
+.filter-input::placeholder{color:#2d3344}
+.filter-select{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:#e2e8f0;padding:8px 13px;border-radius:9px;font-size:12px;cursor:pointer;outline:none;font-family:inherit;transition:border-color .2s}
+.filter-select:focus{border-color:rgba(124,58,237,0.55)}
+.filter-btn{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;padding:8px 16px;border-radius:9px;font-size:12px;cursor:pointer;font-weight:700;box-shadow:0 3px 12px rgba(124,58,237,0.35);transition:all .2s;font-family:inherit;letter-spacing:.2px}
+.filter-btn:hover{box-shadow:0 6px 20px rgba(124,58,237,0.55);transform:translateY(-1px)}
+.filter-btn.sec{background:rgba(255,255,255,0.05);color:#4b5563;box-shadow:none;border:1px solid rgba(255,255,255,0.08)}
+.filter-btn.sec:hover{background:rgba(255,255,255,0.09);color:#94a3b8;transform:none;box-shadow:none}
+.badge{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);padding:5px 11px;border-radius:9px;font-size:11px;color:#3f4859}
 
-.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1e2233}
+.table-wrap{overflow-x:auto;border-radius:14px;border:1px solid rgba(255,255,255,0.07);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
 table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{background:#111320;color:#64748b;padding:9px 11px;text-align:left;font-weight:700;white-space:nowrap;border-bottom:1px solid #1e2233;font-size:10px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none}
-thead th:hover{color:#e2e8f0}
-tbody tr{border-bottom:1px solid #111320;cursor:pointer;transition:background .12s}
-tbody tr:hover{background:#161925}
-td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
+thead th{background:rgba(255,255,255,0.025);color:#3f4859;padding:11px 12px;text-align:left;font-weight:700;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,0.07);font-size:10px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;transition:color .15s}
+thead th:hover{color:#e2e8f0;background:rgba(255,255,255,0.04)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:background .12s}
+tbody tr:hover{background:rgba(124,58,237,0.06)}
+td{padding:9px 12px;white-space:nowrap;vertical-align:middle}
 
-/* Pills */
-.pill{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap}
-.pg{background:#0a1f10;color:#22c55e;border:1px solid #14532d}
-.pr{background:#1f0a0a;color:#ef4444;border:1px solid #7f1d1d}
-.py{background:#1f180a;color:#f59e0b;border:1px solid #78350f}
-.pb{background:#0f1030;color:#818cf8;border:1px solid #312e81}
-.pp{background:#1a0f2e;color:#a855f7;border:1px solid #6b21a8}
-.pgr{background:#111320;color:#475569;border:1px solid #1e2233}
-.po{background:#1f100a;color:#f97316;border:1px solid #7c2d12}
-.pc{background:#0a1520;color:#06b6d4;border:1px solid #155e75}
+/* PILLS */
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap;letter-spacing:.3px}
+.pg{background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.28)}
+.pr{background:rgba(244,63,94,0.1);color:#fb7185;border:1px solid rgba(244,63,94,0.25)}
+.py{background:rgba(245,158,11,0.1);color:#fbbf24;border:1px solid rgba(245,158,11,0.25)}
+.pb{background:rgba(124,58,237,0.12);color:#a78bfa;border:1px solid rgba(124,58,237,0.28)}
+.pp{background:rgba(168,85,247,0.1);color:#c084fc;border:1px solid rgba(168,85,247,0.25)}
+.pgr{background:rgba(255,255,255,0.04);color:#3f4859;border:1px solid rgba(255,255,255,0.08)}
+.po{background:rgba(249,115,22,0.1);color:#fb923c;border:1px solid rgba(249,115,22,0.25)}
+.pc{background:rgba(6,182,212,0.1);color:#22d3ee;border:1px solid rgba(6,182,212,0.25)}
 
 /* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .overlay.open{display:flex}
-.modal{background:#111320;border:1px solid #1e2233;border-radius:14px;width:960px;max-width:96vw;max-height:92vh;overflow-y:auto}
-.mheader{padding:14px 18px;border-bottom:1px solid #1e2233;display:flex;justify-content:space-between;align-items:flex-start}
-.mtitle{font-size:16px;font-weight:700;color:#f1f5f9}
-.msub{font-size:11px;color:#475569;margin-top:2px}
-.mclose{background:#1e2233;border:none;color:#64748b;cursor:pointer;padding:5px 9px;border-radius:6px;font-size:13px}
+.modal{background:linear-gradient(180deg,#12121e 0%,#0e0e1a 100%);border:1px solid rgba(255,255,255,0.1);border-radius:18px;width:960px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 32px 96px rgba(0,0,0,0.75),0 0 0 1px rgba(124,58,237,0.1)}
+.mheader{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(135deg,rgba(124,58,237,0.07),transparent)}
+.mtitle{font-size:17px;font-weight:700;color:#f8fafc;letter-spacing:-.3px}
+.msub{font-size:11px;color:#3f4859;margin-top:4px}
+.mclose{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);color:#4b5563;cursor:pointer;padding:6px 11px;border-radius:8px;font-size:14px;transition:all .2s}
+.mclose:hover{background:rgba(255,255,255,0.12);color:#e2e8f0}
 
 /* Timeline */
-.timeline{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 20px;background:#0d0f16;border-bottom:1px solid #1e2233;position:relative}
-.timeline::before{content:'';position:absolute;top:28px;left:60px;right:60px;height:1px;background:#2d3148}
-.tl-step{display:flex;flex-direction:column;align-items:center;gap:5px;z-index:1;flex:1}
-.tl-dot{width:12px;height:12px;border-radius:50%;border:2px solid #2d3148;background:#0d0f16}
-.tl-dot.done{background:#6366f1;border-color:#6366f1}
-.tl-dot.active{background:#818cf8;border-color:#818cf8;box-shadow:0 0 8px #818cf8}
-.tl-label{font-size:9px;color:#64748b;font-weight:700;letter-spacing:.5px;text-transform:uppercase;text-align:center}
+.timeline{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 28px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.07);position:relative}
+.timeline::before{content:'';position:absolute;top:32px;left:70px;right:70px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent)}
+.tl-step{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;flex:1}
+.tl-dot{width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);background:#07070e;transition:all .3s}
+.tl-dot.done{background:#7c3aed;border-color:#7c3aed;box-shadow:0 0 10px rgba(124,58,237,0.5)}
+.tl-dot.active{background:#0ea5e9;border-color:#0ea5e9;box-shadow:0 0 14px rgba(14,165,233,0.7),0 0 28px rgba(14,165,233,0.3)}
+.tl-label{font-size:9px;color:#3f4859;font-weight:700;letter-spacing:.6px;text-transform:uppercase;text-align:center}
 .tl-date{font-size:10px;color:#94a3b8;font-weight:500;text-align:center}
 
-.mbody{padding:16px 18px}
+.mbody{padding:18px 22px}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.msection{background:#0d0f16;border-radius:8px;padding:12px 14px}
+.msection{background:rgba(255,255,255,0.025);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.06)}
 .msection.full{grid-column:1/-1}
-.mstitle{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.mrow{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px}
-.mlabel{color:#64748b}
-.mval{color:#e2e8f0;font-weight:500;text-align:right;max-width:60%}
-.mlink{color:#818cf8;text-decoration:none;font-size:11px;margin-left:6px}
-.mlink:hover{color:#a5b4fc;text-decoration:underline}
-.empty{text-align:center;padding:40px;color:#475569;font-size:12px}
+.mstitle{font-size:10px;font-weight:700;color:#3f4859;text-transform:uppercase;letter-spacing:.9px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.mrow{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;gap:8px}
+.mlabel{color:#3f4859;flex-shrink:0}
+.mval{color:#e2e8f0;font-weight:500;text-align:right;max-width:65%}
+.mlink{color:#a78bfa;text-decoration:none;font-size:11px;margin-left:6px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.22);padding:3px 9px;border-radius:6px;transition:all .2s;display:inline-flex;align-items:center;gap:3px}
+.mlink:hover{color:#c4b5fd;background:rgba(124,58,237,0.2)}
+.empty{text-align:center;padding:40px;color:#2d3344;font-size:12px}
 </style>
 </head>
 <body>
@@ -159,12 +169,12 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
   <!-- AGING CARDS -->
   <div class="aging-row" id="aging-row">
     <div class="aging-card" onclick="agingFilter('0-7D')" 
-         style="background:rgba(34,197,94,.08);border-color:#22c55e22;">
+         style="background:rgba(34,197,94,.08);border-color:#10b98122;">
       <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:#22c55e;opacity:.6"></div>
-      <div class="aging-label" style="color:#22c55e">0-7D</div>
-      <div class="aging-num" style="color:#22c55e">56</div>
+      <div class="aging-label" style="color:#10b981">0-7D</div>
+      <div class="aging-num" style="color:#10b981">56</div>
       <div class="aging-gmv">£946k</div>
-      <div class="aging-boxes" style="color:#22c55e">3 boxes</div>
+      <div class="aging-boxes" style="color:#10b981">3 boxes</div>
     </div>
     <div class="aging-card" onclick="agingFilter('8-14D')" 
          style="background:rgba(6,182,212,.08);border-color:#06b6d422;">
@@ -219,7 +229,7 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
   <!-- KPI CARDS -->
   <div class="kpi-row">
     <div class="kpi">
-      <div class="kpi-num" style="color:#818cf8">239</div>
+      <div class="kpi-num" style="color:#a78bfa">239</div>
       <div class="kpi-label">OPEN ORDERS</div>
       <div class="kpi-sub">£4,892,108 GMV at risk</div>
     </div>
@@ -244,7 +254,7 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
       <div class="kpi-sub">£259,054 blocked</div>
     </div>
     <div class="kpi">
-      <div class="kpi-num" style="color:#22c55e">32</div>
+      <div class="kpi-num" style="color:#10b981">32</div>
       <div class="kpi-label">READY TO DISPATCH</div>
       <div class="kpi-sub">£222,682 GMV</div>
     </div>
@@ -320,7 +330,7 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
         <th>QC Hold</th>
         <th>FF Date</th>
         <th>Handover Date</th>
-        <th onclick="sortBy('dispatched_qty')" style="color:#22c55e">Disp. Qty ↕</th>
+        <th onclick="sortBy('dispatched_qty')" style="color:#10b981">Disp. Qty ↕</th>
         <th onclick="sortBy('cancelled_qty')" style="color:#ef4444">Cancelled ↕</th>
         <th onclick="sortBy('pending_qty')" style="color:#f59e0b">Pending ↕</th>
         <th onclick="sortBy('refunded_gbp')" style="color:#a855f7">Refunded £ ↕</th>
@@ -334,30 +344,30 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
 <!-- ===== ACCOUNT OWNER ===== -->
 <div class="page" id="page-am">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-    <select class="filter-select" id="am-select" onchange="renderAM()" style="font-size:13px;font-weight:700;padding:8px 14px;min-width:220px;border-color:#6366f1">
+    <select class="filter-select" id="am-select" onchange="renderAM()" style="font-size:13px;font-weight:700;padding:8px 14px;min-width:220px;border-color:#7c3aed">
       <option value="">👥 All Account Owners</option>
     </select>
     <span class="badge" id="am-count"></span>
-    <span style="font-size:11px;color:#475569;margin-left:auto">Click any row to see full order details</span>
+    <span style="font-size:11px;color:#3f4859;margin-left:auto">Click any row to see full order details</span>
   </div>
 
   <!-- KPI summary row -->
   <div id="am-kpis" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px"></div>
 
   <!-- Status breakdown -->
-  <div style="background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px;margin-bottom:14px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px">STATUS BREAKDOWN</div>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:14px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#4b5563;text-transform:uppercase;margin-bottom:10px">STATUS BREAKDOWN</div>
     <div id="am-status-grid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
   </div>
 
   <!-- Aging + Zone mini-grids -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-    <div style="background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px">AGING BREAKDOWN</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#4b5563;text-transform:uppercase;margin-bottom:10px">AGING BREAKDOWN</div>
       <div id="am-aging-grid"></div>
     </div>
-    <div style="background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px">ZONE BREAKDOWN</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#4b5563;text-transform:uppercase;margin-bottom:10px">ZONE BREAKDOWN</div>
       <div id="am-zone-grid"></div>
     </div>
   </div>
@@ -450,12 +460,12 @@ function renderOverview() {
   document.getElementById('zone-table').innerHTML = zt;
 
   // Pipeline table
-  let pt = `<div style="display:flex;font-size:9px;color:#475569;font-weight:700;letter-spacing:.4px;padding:0 0 5px;border-bottom:1px solid #1e2233;text-transform:uppercase">
+  let pt = `<div style="display:flex;font-size:9px;color:#3f4859;font-weight:700;letter-spacing:.4px;padding:0 0 5px;border-bottom:1px solid rgba(255,255,255,0.07);text-transform:uppercase">
     <span style="flex:1"></span><span style="width:36px;text-align:right">Orders</span>
     <span style="width:65px;text-align:right">GMV</span><span style="width:55px;text-align:right">Boxes</span>
   </div>`;
   PIPELINE.forEach(([label, count, gmv, boxes]) => {
-    const bcolor = boxes > 0 ? '#818cf8' : '#475569';
+    const bcolor = boxes > 0 ? '#a78bfa' : '#475569';
     const btext  = boxes > 0 ? boxes+'bx' : '0bx';
     pt += `<div class="pipeline-row">
       <span class="pipeline-label">${label}</span>
@@ -507,7 +517,7 @@ function renderOverview() {
     type:'bar',
     data:{
       labels:TOP_VENDORS.map(v=>v[0]),
-      datasets:[{ data:TOP_VENDORS.map(v=>v[1]), backgroundColor:'#6366f1', borderRadius:3 }]
+      datasets:[{ data:TOP_VENDORS.map(v=>v[1]), backgroundColor:'#7c3aed', borderRadius:3 }]
     },
     options:{
       indexAxis:'y',
@@ -605,32 +615,32 @@ function renderTable(){
   if(!filtered.length){tbody.innerHTML='<tr><td colspan="26" class="empty">No orders match</td></tr>';return;}
   tbody.innerHTML=filtered.map((o,i)=>{
     const a=o.orders_aging||0,ac=ageColor(a);
-    const disp=o.dispatched_box_count?`<b style="color:#818cf8">${o.dispatched_box_count}</b>`:'—';
+    const disp=o.dispatched_box_count?`<b style="color:#a78bfa">${o.dispatched_box_count}</b>`:'—';
     const trk=o.tracking_number?`<span style="font-family:monospace;font-size:9px;word-break:break-all;display:inline-block;max-width:90px;line-height:1.2">${o.tracking_number}</span>`:'—';
     return`<tr onclick="openModal(${i})">
-      <td><b style="color:#818cf8">${o.fleek_id}</b></td>
+      <td><b style="color:#a78bfa">${o.fleek_id}</b></td>
       <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis">${o.vendor||'—'}</td><td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.customer_name||''}">${o.customer_name||'—'}</td>
-      <td style="color:#64748b">${o.order_month||'—'}</td>
+      <td style="color:#4b5563">${o.order_month||'—'}</td>
       <td><b>£${(o.gmv_gbp||0).toLocaleString()}</b></td>
       <td><b style="color:${ac}">${a}d</b></td>
       <td>${zonePill(o.zone_mapping)}</td>
       <td style="font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${o.latest_status||'—'}</td>
       <td>${ffPill(o.ff_compliance)}</td>
-      <td style="color:#64748b;font-size:10px">${o.targeted_delivery_date||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.targeted_delivery_date||'—'}</td>
       <td style="text-align:center">${disp}</td>
       <td style="text-align:center">${o.dispatched_pieces?(o.dispatched_pieces).toLocaleString():'—'}</td>
       <td style="text-align:center">${o.dispatched_weight_kg?o.dispatched_weight_kg+'kg':'—'}</td>
-      <td style="color:#64748b;font-size:10px">${o.last_handover_date||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.last_handover_date||'—'}</td>
       <td>${trk}</td>
       <td style="font-size:10px;color:#94a3b8">${o.logistics_partner||'—'}</td>
       <td style="font-size:10px">${o.ior||'—'}</td>
-      <td style="text-align:center;color:#6366f1">${o.boxes||'—'}</td>
-      <td style="color:#64748b;font-size:10px">${o.qc_pending_date||'—'}</td>
-      <td style="color:#64748b;font-size:10px">${o.qc_approved_date||'—'}</td>
-      <td style="color:#64748b;font-size:10px">${o.qc_hold_date||'—'}</td>
-      <td style="color:#64748b;font-size:10px">${o.ff_date||'—'}</td>
-      <td style="color:#64748b;font-size:10px">${o.handover_date||'—'}</td>
-      <td style="text-align:center;font-weight:700;color:#22c55e">${o.dispatched_qty>0?o.dispatched_qty.toLocaleString():'—'}</td>
+      <td style="text-align:center;color:#7c3aed">${o.boxes||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.qc_pending_date||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.qc_approved_date||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.qc_hold_date||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.ff_date||'—'}</td>
+      <td style="color:#4b5563;font-size:10px">${o.handover_date||'—'}</td>
+      <td style="text-align:center;font-weight:700;color:#10b981">${o.dispatched_qty>0?o.dispatched_qty.toLocaleString():'—'}</td>
       <td style="text-align:center;font-weight:700;color:#ef4444">${o.cancelled_qty>0?o.cancelled_qty.toLocaleString():'—'}</td>
       <td style="text-align:center;font-weight:700;color:#f59e0b">${o.pending_qty>0?o.pending_qty.toLocaleString():'—'}</td>
       <td style="text-align:center;font-weight:700;color:#a855f7">${o.refunded_gbp>0?'£'+o.refunded_gbp.toLocaleString():'—'}</td>
@@ -667,7 +677,7 @@ function openModal(i){
 
   // QC link
   const qcUrl=o.order_line_id&&o.qc_product_id?`https://shop.joinfleek.com/qc/${o.order_line_id}?source=QCAPP&qcProductId=${o.qc_product_id}`:null;
-  const qcLink=qcUrl?`<a href="${qcUrl}" target="_blank" class="mlink">🔗 Open QC Report</a>`:'<span style="color:#475569;font-size:9px">No QC record</span>';
+  const qcLink=qcUrl?`<a href="${qcUrl}" target="_blank" class="mlink">🔗 Open QC Report</a>`:'<span style="color:#3f4859;font-size:9px">No QC record</span>';
   const slackLink=o.slack_hold_message?`<a href="${o.slack_hold_message}" target="_blank" class="mlink" style="background:rgba(74,144,226,.15);color:#4a90e2;margin-left:6px">💬 Slack Hold Message</a>`:'';
 
 
@@ -706,7 +716,7 @@ function openModal(i){
     <div class="msection full">
       <div class="mstitle">🚚 DISPATCH (line_item_boxes)</div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
-        ${mkpi('Boxes',o.dispatched_box_count||'—','#818cf8')}
+        ${mkpi('Boxes',o.dispatched_box_count||'—','#a78bfa')}
         ${mkpi('Pieces',o.dispatched_pieces?(o.dispatched_pieces).toLocaleString():'—','#06b6d4')}
         ${mkpi('Weight',o.dispatched_weight_kg?o.dispatched_weight_kg+'kg':'—','#f59e0b')}
         ${mkpi('Last Handover',o.last_handover_date||'—','#22c55e')}
@@ -722,7 +732,7 @@ function openModal(i){
         ${mkpi('Pending',o.pending_qty>0?o.pending_qty.toLocaleString():'—','#f59e0b')}
         ${mkpi('Refunded',o.refunded_gbp>0?'£'+o.refunded_gbp.toLocaleString():'—','#a855f7')}
       </div>
-      ${o.refund_reasons?`<div style="font-size:10px;color:#64748b;margin-top:4px">Refund reason: <span style="color:#a855f7">${o.refund_reasons}</span></div>`:''}
+      ${o.refund_reasons?`<div style="font-size:10px;color:#4b5563;margin-top:4px">Refund reason: <span style="color:#a855f7">${o.refund_reasons}</span></div>`:''}
     </div>
     <div class="msection full">
       <div class="mstitle">💬 COMMENTS</div>
@@ -737,8 +747,8 @@ function openModal(i){
 }
 
 function mr(label,val){return`<div class="mrow"><span class="mlabel">${label}</span><span class="mval">${val||'—'}</span></div>`;}
-function mkpi(label,val,color){return`<div style="background:#111320;border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:${color}">${val}</div><div style="font-size:9px;color:#475569;margin-top:3px;text-transform:uppercase;letter-spacing:.5px">${label}</div></div>`;}
-function mcomment(name,txt){return`<div><div style="font-size:10px;font-weight:700;color:#475569;margin-bottom:5px">${name}</div><div style="font-size:11px;color:#94a3b8;min-height:24px">${txt||'<i style="color:#334155">No comments</i>'}</div></div>`;}
+function mkpi(label,val,color){return`<div style="background:rgba(255,255,255,0.03);border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:${color}">${val}</div><div style="font-size:9px;color:#3f4859;margin-top:3px;text-transform:uppercase;letter-spacing:.5px">${label}</div></div>`;}
+function mcomment(name,txt){return`<div><div style="font-size:10px;font-weight:700;color:#3f4859;margin-bottom:5px">${name}</div><div style="font-size:11px;color:#94a3b8;min-height:24px">${txt||'<i style="color:#334155">No comments</i>'}</div></div>`;}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
 
@@ -787,7 +797,7 @@ function renderAM() {
   const avgGmv     = ords.length ? Math.round(totalGmv/ords.length) : 0;
   const kpiDiv = document.getElementById('am-kpis');
   kpiDiv.innerHTML = [
-    mkpi('Orders', ords.length.toLocaleString(), '#818cf8'),
+    mkpi('Orders', ords.length.toLocaleString(), '#a78bfa'),
     mkpi('Total GMV', '£'+Math.round(totalGmv/1000).toLocaleString()+'K', '#22c55e'),
     mkpi('Avg GMV', ords.length?'£'+avgGmv.toLocaleString():'—', '#f59e0b'),
     mkpi('Pending Qty', pendingQty>0?pendingQty.toLocaleString():'—', '#f59e0b'),
@@ -800,7 +810,7 @@ function renderAM() {
   ords.forEach(o=>{ const s=o.latest_status||'Unknown'; statusCounts[s]=(statusCounts[s]||0)+1; });
   const statusColors = {
     'QC_APPROVED':'#22c55e','PICKUP_SUCCESSFULL':'#22c55e','HANDED_OVER_TO_LOGISTICS_PARTNER':'#22c55e',
-    'COURIER':'#818cf8','FREIGHT':'#818cf8','DELIVERED':'#22c55e',
+    'COURIER':'#a78bfa','FREIGHT':'#a78bfa','DELIVERED':'#22c55e',
     'QC_HOLD':'#ef4444','CANCELLED':'#ef4444','QC_PENDING':'#f59e0b',
     'ACCEPTED':'#94a3b8','PICKUP_READY':'#f59e0b','PICKUP_REQUESTED':'#f59e0b',
   };
@@ -809,10 +819,10 @@ function renderAM() {
     .map(([s,c])=>{
       const col=statusColors[s]||'#64748b';
       const pct=ords.length?Math.round(c/ords.length*100):0;
-      return `<div style="background:#0d0f16;border:1px solid #1e2233;border-radius:7px;padding:8px 12px;min-width:120px">
+      return `<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:8px 12px;min-width:120px">
         <div style="font-size:18px;font-weight:800;color:${col}">${c}</div>
-        <div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px">${s.replace(/_/g,' ')}</div>
-        <div style="font-size:9px;color:#475569;margin-top:2px">${pct}%</div>
+        <div style="font-size:9px;color:#4b5563;text-transform:uppercase;letter-spacing:.4px;margin-top:2px">${s.replace(/_/g,' ')}</div>
+        <div style="font-size:9px;color:#3f4859;margin-top:2px">${pct}%</div>
       </div>`;
     }).join('');
 
@@ -822,10 +832,10 @@ function renderAM() {
   const agingColors = {'0-7D':'#22c55e','8-14D':'#84cc16','15-30D':'#f59e0b','31-60D':'#f97316','61-90D':'#ef4444','91-180D':'#dc2626','180+D':'#7f1d1d'};
   document.getElementById('am-aging-grid').innerHTML = Object.entries(agingBuckets)
     .filter(([,c])=>c>0)
-    .map(([b,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1d2e;font-size:12px">
+    .map(([b,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px">
       <span style="color:${agingColors[b]||'#94a3b8'};font-weight:600">${b}</span>
       <span style="font-weight:700;color:#f1f5f9">${c}</span>
-    </div>`).join('') || '<div style="color:#475569;font-size:12px">No data</div>';
+    </div>`).join('') || '<div style="color:#3f4859;font-size:12px">No data</div>';
 
   // ── Zone breakdown ──
   const zoneCounts = {};
@@ -834,11 +844,11 @@ function renderAM() {
   ords.forEach(o=>{ const z=o.zone_mapping||'Unknown'; zoneGmv[z]=(zoneGmv[z]||0)+(o.gmv_gbp||0); });
   document.getElementById('am-zone-grid').innerHTML = Object.entries(zoneCounts)
     .sort((a,b)=>b[1]-a[1])
-    .map(([z,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1d2e;font-size:12px">
+    .map(([z,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px">
       <span class="pill pb" style="font-size:10px">${z}</span>
       <span style="font-weight:700;color:#f1f5f9">${c}</span>
-      <span style="color:#475569;font-size:11px">£${Math.round((zoneGmv[z]||0)/1000)}K</span>
-    </div>`).join('') || '<div style="color:#475569;font-size:12px">No data</div>';
+      <span style="color:#3f4859;font-size:11px">£${Math.round((zoneGmv[z]||0)/1000)}K</span>
+    </div>`).join('') || '<div style="color:#3f4859;font-size:12px">No data</div>';
 
   // ── Orders table ──
   const ffPillSimple = f => {
@@ -849,19 +859,19 @@ function renderAM() {
     return `<span class="pill py">${f}</span>`;
   };
   document.getElementById('am-tbody').innerHTML = ords.length === 0
-    ? '<tr><td colspan="13" style="text-align:center;color:#475569;padding:40px;font-size:13px">No orders found for this account owner</td></tr>'
+    ? '<tr><td colspan="13" style="text-align:center;color:#3f4859;padding:40px;font-size:13px">No orders found for this account owner</td></tr>'
     : ords.map(o=>`<tr onclick="openModal('${o.fleek_id}')" title="Click for full details">
-        <td><span style="font-family:monospace;font-size:11px;color:#818cf8;font-weight:700">${o.fleek_id}</span></td>
+        <td><span style="font-family:monospace;font-size:11px;color:#a78bfa;font-weight:700">${o.fleek_id}</span></td>
         <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${o.vendor||'—'}</td>
         <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${o.customer_name||'—'}</td>
         <td>${o.order_month||'—'}</td>
-        <td style="font-weight:700;color:#22c55e">£${(o.gmv_gbp||0).toLocaleString()}</td>
+        <td style="font-weight:700;color:#10b981">£${(o.gmv_gbp||0).toLocaleString()}</td>
         <td style="color:${(o.orders_aging||0)>30?'#ef4444':(o.orders_aging||0)>14?'#f59e0b':'#22c55e'};font-weight:600">${o.orders_aging||0}d</td>
         <td><span class="pill pb">${o.zone_mapping||'—'}</span></td>
         <td>${statusPill(o.latest_status)}</td>
         <td>${qcPill(effectiveQC(o))}</td>
         <td>${ffPillSimple(o.ff_compliance)}</td>
-        <td style="text-align:center;font-weight:700;color:#22c55e">${o.dispatched_qty>0?o.dispatched_qty:'—'}</td>
+        <td style="text-align:center;font-weight:700;color:#10b981">${o.dispatched_qty>0?o.dispatched_qty:'—'}</td>
         <td style="text-align:center;font-weight:700;color:#f59e0b">${o.pending_qty>0?o.pending_qty:'—'}</td>
         <td style="text-align:center;font-weight:700;color:#a855f7">${o.refunded_gbp>0?'£'+o.refunded_gbp.toLocaleString():'—'}</td>
       </tr>`).join('');
