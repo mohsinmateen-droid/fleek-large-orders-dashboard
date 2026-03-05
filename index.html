@@ -283,7 +283,8 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
 <!-- ===== ALL ORDERS ===== -->
 <div class="page" id="page-orders">
   <div class="filters">
-    <input class="filter-input" id="search" placeholder="🔍 Search fleek ID, vendor, tracking..." oninput="applyFilters()" style="width:260px">
+    <input class="filter-input" id="search" placeholder="🔍 Search Fleek ID, vendor, customer, tracking..." oninput="applyFilters()" style="width:300px">
+    <select class="filter-select" id="f-customer" onchange="applyFilters()" style="max-width:200px"><option value="">All Customers</option></select>
     <select class="filter-select" id="f-status" onchange="applyFilters()"><option value="">All Statuses</option></select>
     <select class="filter-select" id="f-zone" onchange="applyFilters()"><option value="">All Zones</option></select>
     <select class="filter-select" id="f-ff" onchange="applyFilters()"><option value="">All FF</option></select>
@@ -479,6 +480,7 @@ function initFilters(){
   const add=(id,vals)=>{vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.text=v;document.getElementById(id).appendChild(o);});};
   add('f-status',[...new Set(ORDERS.map(o=>o.latest_status).filter(Boolean))].sort());
   add('f-zone',[...new Set(ORDERS.map(o=>o.zone_mapping).filter(Boolean))].sort());
+  add('f-customer',[...new Set(ORDERS.map(o=>o.customer_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b)));
   add('f-ff',[...new Set(ORDERS.map(o=>o.ff_compliance).filter(Boolean))].sort());
   add('f-qc',['PASS','HOLD','IN_PROGRESS','None']);
   add('f-month',[...new Set(ORDERS.map(o=>o.order_month).filter(Boolean))].sort((a,b)=>new Date('01 '+a)-new Date('01 '+b)));
@@ -487,6 +489,7 @@ function initFilters(){
 
 function applyFilters(){
   const q=document.getElementById('search').value.toLowerCase();
+  const fc=document.getElementById('f-customer').value;
   const fs=document.getElementById('f-status').value;
   const fz=document.getElementById('f-zone').value;
   const ff=document.getElementById('f-ff').value;
@@ -495,6 +498,7 @@ function applyFilters(){
   const fa=document.getElementById('f-aging').value;
   filtered=ORDERS.filter(o=>{
     if(q&&!JSON.stringify(o).toLowerCase().includes(q))return false;
+    if(fc&&o.customer_name!==fc)return false;
     if(fs&&o.latest_status!==fs)return false;
     if(fz&&o.zone_mapping!==fz)return false;
     if(ff&&o.ff_compliance!==ff)return false;
@@ -508,7 +512,7 @@ function applyFilters(){
 }
 
 function sortBy(c){if(sortCol===c)sortDir*=-1;else{sortCol=c;sortDir=-1;}applyFilters();}
-function clearFilters(){document.getElementById('search').value='';['f-status','f-zone','f-ff','f-qc','f-month','f-aging'].forEach(id=>document.getElementById(id).value='');applyFilters();}
+function clearFilters(){document.getElementById('search').value='';['f-customer','f-status','f-zone','f-ff','f-qc','f-month','f-aging'].forEach(id=>document.getElementById(id).value='');applyFilters();}
 
 const PAST_QC=['QC_APPROVED','PICKUP_SUCCESSFULL','PICKUP_READY','PICKUP_REQUESTED','PICKUP_SCHEDULED','FREIGHT','FREIGHT_DEPARTED','COURIER','COURIER_CUSTOMS','HANDED_OVER_TO_LOGISTICS_PARTNER'];
 function effectiveQC(o){
