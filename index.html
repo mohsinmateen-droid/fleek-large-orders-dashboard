@@ -150,6 +150,7 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
 <div class="tabs">
   <div class="tab active" onclick="showTab('overview',this)">📊 Overview</div>
   <div class="tab" onclick="showTab('orders',this)">📋 All Orders</div>
+  <div class="tab" onclick="showTab('am',this)">👤 Account Owner</div>
 </div>
 
 <!-- ===== OVERVIEW ===== -->
@@ -329,6 +330,61 @@ td{padding:8px 11px;white-space:nowrap;vertical-align:middle}
   </div>
 </div>
 
+
+<!-- ===== ACCOUNT OWNER ===== -->
+<div class="page" id="page-am">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <select class="filter-select" id="am-select" onchange="renderAM()" style="font-size:13px;font-weight:700;padding:8px 14px;min-width:220px;border-color:#6366f1">
+      <option value="">👥 All Account Owners</option>
+    </select>
+    <span class="badge" id="am-count"></span>
+    <span style="font-size:11px;color:#475569;margin-left:auto">Click any row to see full order details</span>
+  </div>
+
+  <!-- KPI summary row -->
+  <div id="am-kpis" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px"></div>
+
+  <!-- Status breakdown -->
+  <div style="background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px;margin-bottom:14px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px">STATUS BREAKDOWN</div>
+    <div id="am-status-grid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+
+  <!-- Aging + Zone mini-grids -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+    <div style="background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px">AGING BREAKDOWN</div>
+      <div id="am-aging-grid"></div>
+    </div>
+    <div style="background:#111320;border:1px solid #1e2233;border-radius:10px;padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.7px;color:#64748b;text-transform:uppercase;margin-bottom:10px">ZONE BREAKDOWN</div>
+      <div id="am-zone-grid"></div>
+    </div>
+  </div>
+
+  <!-- Orders table -->
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Fleek ID</th>
+        <th>Vendor</th>
+        <th>Customer</th>
+        <th>Month</th>
+        <th>GMV</th>
+        <th>Aging</th>
+        <th>Zone</th>
+        <th>Status</th>
+        <th>QC</th>
+        <th>FF</th>
+        <th>Disp. Qty</th>
+        <th>Pending</th>
+        <th>Refunded £</th>
+      </tr></thead>
+      <tbody id="am-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="overlay" id="modal" onclick="if(event.target.id==='modal')closeModal()">
   <div class="modal">
@@ -364,6 +420,7 @@ function showTab(name, el) {
   el.classList.add('active');
   if(name==='orders'){initFilters();applyFilters();}
   if(name==='overview')renderOverview();
+  if(name==='am'){initAM();}
 }
 
 function agingFilter(bucket) {
@@ -683,6 +740,132 @@ function mr(label,val){return`<div class="mrow"><span class="mlabel">${label}</s
 function mkpi(label,val,color){return`<div style="background:#111320;border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:800;color:${color}">${val}</div><div style="font-size:9px;color:#475569;margin-top:3px;text-transform:uppercase;letter-spacing:.5px">${label}</div></div>`;}
 function mcomment(name,txt){return`<div><div style="font-size:10px;font-weight:700;color:#475569;margin-bottom:5px">${name}</div><div style="font-size:11px;color:#94a3b8;min-height:24px">${txt||'<i style="color:#334155">No comments</i>'}</div></div>`;}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+
+
+function statusPill(s) {
+  if(!s) return '<span class="pill pgr">—</span>';
+  const c = {
+    'QC_APPROVED':'pg','PICKUP_SUCCESSFULL':'pg','DELIVERED':'pg','HANDED_OVER_TO_LOGISTICS_PARTNER':'pg',
+    'QC_HOLD':'pr','CANCELLED':'pr',
+    'QC_PENDING':'py','PICKUP_READY':'py','PICKUP_REQUESTED':'py','PICKUP_SCHEDULED':'py',
+    'ACCEPTED':'pb','FREIGHT':'pb','COURIER':'pp','FREIGHT_DEPARTED':'pp',
+  };
+  const cls = c[s] || 'pgr';
+  return `<span class="pill ${cls}">${s.replace(/_/g,' ')}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACCOUNT OWNER TAB
+// ═══════════════════════════════════════════════════════════
+let amInited = false;
+function initAM() {
+  if (amInited) return; amInited = true;
+  const sel = document.getElementById('am-select');
+  const names = [...new Set(ORDERS.map(o => o.account_owner && o.account_owner.trim() ? o.account_owner.trim() : 'Unassigned'))].sort((a,b) => {
+    if(a==='Unassigned') return 1; if(b==='Unassigned') return -1;
+    return a.localeCompare(b);
+  });
+  names.forEach(n => { const opt=document.createElement('option'); opt.value=n; opt.text=n; sel.appendChild(opt); });
+  renderAM();
+}
+
+function renderAM() {
+  const sel = document.getElementById('am-select').value;
+  const ords = ORDERS.filter(o => {
+    const ao = (o.account_owner && o.account_owner.trim()) ? o.account_owner.trim() : 'Unassigned';
+    return sel === '' || ao === sel;
+  });
+
+  document.getElementById('am-count').textContent = ords.length + ' orders';
+
+  // ── KPIs ──
+  const totalGmv   = ords.reduce((s,o)=>s+(o.gmv_gbp||0),0);
+  const pendingQty = ords.reduce((s,o)=>s+(o.pending_qty||0),0);
+  const dispQty    = ords.reduce((s,o)=>s+(o.dispatched_qty||0),0);
+  const refunded   = ords.reduce((s,o)=>s+(o.refunded_gbp||0),0);
+  const avgGmv     = ords.length ? Math.round(totalGmv/ords.length) : 0;
+  const kpiDiv = document.getElementById('am-kpis');
+  kpiDiv.innerHTML = [
+    mkpi('Orders', ords.length.toLocaleString(), '#818cf8'),
+    mkpi('Total GMV', '£'+Math.round(totalGmv/1000).toLocaleString()+'K', '#22c55e'),
+    mkpi('Avg GMV', ords.length?'£'+avgGmv.toLocaleString():'—', '#f59e0b'),
+    mkpi('Pending Qty', pendingQty>0?pendingQty.toLocaleString():'—', '#f59e0b'),
+    mkpi('Dispatched', dispQty>0?dispQty.toLocaleString():'—', '#22c55e'),
+    mkpi('Refunded', refunded>0?'£'+Math.round(refunded).toLocaleString():'—', '#a855f7'),
+  ].join('');
+
+  // ── Status breakdown ──
+  const statusCounts = {};
+  ords.forEach(o=>{ const s=o.latest_status||'Unknown'; statusCounts[s]=(statusCounts[s]||0)+1; });
+  const statusColors = {
+    'QC_APPROVED':'#22c55e','PICKUP_SUCCESSFULL':'#22c55e','HANDED_OVER_TO_LOGISTICS_PARTNER':'#22c55e',
+    'COURIER':'#818cf8','FREIGHT':'#818cf8','DELIVERED':'#22c55e',
+    'QC_HOLD':'#ef4444','CANCELLED':'#ef4444','QC_PENDING':'#f59e0b',
+    'ACCEPTED':'#94a3b8','PICKUP_READY':'#f59e0b','PICKUP_REQUESTED':'#f59e0b',
+  };
+  document.getElementById('am-status-grid').innerHTML = Object.entries(statusCounts)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([s,c])=>{
+      const col=statusColors[s]||'#64748b';
+      const pct=ords.length?Math.round(c/ords.length*100):0;
+      return `<div style="background:#0d0f16;border:1px solid #1e2233;border-radius:7px;padding:8px 12px;min-width:120px">
+        <div style="font-size:18px;font-weight:800;color:${col}">${c}</div>
+        <div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px">${s.replace(/_/g,' ')}</div>
+        <div style="font-size:9px;color:#475569;margin-top:2px">${pct}%</div>
+      </div>`;
+    }).join('');
+
+  // ── Aging breakdown ──
+  const agingBuckets = {'0-7D':0,'8-14D':0,'15-30D':0,'31-60D':0,'61-90D':0,'91-180D':0,'180+D':0};
+  ords.forEach(o=>{ const b=ageBucket(o.orders_aging||0); if(b in agingBuckets) agingBuckets[b]++; });
+  const agingColors = {'0-7D':'#22c55e','8-14D':'#84cc16','15-30D':'#f59e0b','31-60D':'#f97316','61-90D':'#ef4444','91-180D':'#dc2626','180+D':'#7f1d1d'};
+  document.getElementById('am-aging-grid').innerHTML = Object.entries(agingBuckets)
+    .filter(([,c])=>c>0)
+    .map(([b,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1d2e;font-size:12px">
+      <span style="color:${agingColors[b]||'#94a3b8'};font-weight:600">${b}</span>
+      <span style="font-weight:700;color:#f1f5f9">${c}</span>
+    </div>`).join('') || '<div style="color:#475569;font-size:12px">No data</div>';
+
+  // ── Zone breakdown ──
+  const zoneCounts = {};
+  ords.forEach(o=>{ const z=o.zone_mapping||'Unknown'; zoneCounts[z]=(zoneCounts[z]||0)+1; });
+  const zoneGmv = {};
+  ords.forEach(o=>{ const z=o.zone_mapping||'Unknown'; zoneGmv[z]=(zoneGmv[z]||0)+(o.gmv_gbp||0); });
+  document.getElementById('am-zone-grid').innerHTML = Object.entries(zoneCounts)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([z,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1d2e;font-size:12px">
+      <span class="pill pb" style="font-size:10px">${z}</span>
+      <span style="font-weight:700;color:#f1f5f9">${c}</span>
+      <span style="color:#475569;font-size:11px">£${Math.round((zoneGmv[z]||0)/1000)}K</span>
+    </div>`).join('') || '<div style="color:#475569;font-size:12px">No data</div>';
+
+  // ── Orders table ──
+  const ffPillSimple = f => {
+    if(!f) return '<span class="pill pgr">—</span>';
+    if(f==='Green') return '<span class="pill pg">🟢</span>';
+    if(f==='Red') return '<span class="pill pr">🔴</span>';
+    if(f==='Yellow') return '<span class="pill py">🟡</span>';
+    return `<span class="pill py">${f}</span>`;
+  };
+  document.getElementById('am-tbody').innerHTML = ords.length === 0
+    ? '<tr><td colspan="13" style="text-align:center;color:#475569;padding:40px;font-size:13px">No orders found for this account owner</td></tr>'
+    : ords.map(o=>`<tr onclick="openModal('${o.fleek_id}')" title="Click for full details">
+        <td><span style="font-family:monospace;font-size:11px;color:#818cf8;font-weight:700">${o.fleek_id}</span></td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${o.vendor||'—'}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${o.customer_name||'—'}</td>
+        <td>${o.order_month||'—'}</td>
+        <td style="font-weight:700;color:#22c55e">£${(o.gmv_gbp||0).toLocaleString()}</td>
+        <td style="color:${(o.orders_aging||0)>30?'#ef4444':(o.orders_aging||0)>14?'#f59e0b':'#22c55e'};font-weight:600">${o.orders_aging||0}d</td>
+        <td><span class="pill pb">${o.zone_mapping||'—'}</span></td>
+        <td>${statusPill(o.latest_status)}</td>
+        <td>${qcPill(effectiveQC(o))}</td>
+        <td>${ffPillSimple(o.ff_compliance)}</td>
+        <td style="text-align:center;font-weight:700;color:#22c55e">${o.dispatched_qty>0?o.dispatched_qty:'—'}</td>
+        <td style="text-align:center;font-weight:700;color:#f59e0b">${o.pending_qty>0?o.pending_qty:'—'}</td>
+        <td style="text-align:center;font-weight:700;color:#a855f7">${o.refunded_gbp>0?'£'+o.refunded_gbp.toLocaleString():'—'}</td>
+      </tr>`).join('');
+}
 
 // Init
 renderOverview();
