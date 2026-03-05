@@ -640,7 +640,7 @@ function renderTable(){
 
 // MODAL
 function openModal(i){
-  const o=filtered[i];
+  const o=typeof i==="number"?filtered[i]:ORDERS.find(x=>x.fleek_id===i);
   document.getElementById('m-title').innerHTML=`${o.fleek_id} &nbsp;·&nbsp; ${o.vendor||''}`;
   document.getElementById('m-sub').textContent=`${o.item_name||''} · ${o.zone_mapping||''} · £${(o.gmv_gbp||0).toLocaleString()}`;
 
