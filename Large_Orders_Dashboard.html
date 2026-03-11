@@ -725,20 +725,7 @@ function openModal(i){
       ${mr('In-Transit Aging',o.in_transit_aging?(o.in_transit_aging+'d'):'—')}
       ${mr('Ship Mode',o.shipping_mode||'—')}${mr('Ship Type',o.shipping_type||'—')}${mr('IOR',o.ior||'—')}
     </div>
-    ${o.container_number ? `
-    <div class="msection" style="grid-column:1/-1">
-      <div class="mstitle">🚢 CONTAINER &nbsp;<a href="${o.container_tracker_url||'https://fleek-container-mgmt.netlify.app/'}" target="_blank" style="font-size:10px;color:#4a90e2;text-decoration:none;font-weight:500;border:1px solid #4a90e233;padding:2px 8px;border-radius:4px;">Open Tracker ↗</a></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;">
-        ${mr('Container #',o.container_number)}
-        ${mr('Status',o.container_status||'—')}
-        ${mr('Route',(o.port_of_origin||'?')+' → '+(o.port_of_discharge||'?'))}
-        ${mr('Shipment Type',o.shipment_type||'—')}
-        ${mr('Size',o.container_size||'—')}
-        ${mr('Weight',(o.container_gross_weight?o.container_gross_weight+'kg':'—'))}
-        ${mr('Dispatched',(o.container_dispatched_date||'').substring(0,10)||'—')}
-        ${mr('Delivered',(o.container_delivered_date||'').substring(0,10)||'—')}
-      </div>
-    </div>` : ''}
+    ${containerSection(o)}
     <div class="msection">
       <div class="mstitle">🔍 QC ${qcLink}${slackLink}</div>
       ${mr('QC Pending',o.qc_pending_date||'—')}${mr('QC Hold',o.qc_hold_date||'—')}${mr('QC Approved',o.qc_approved_date||'—')}
@@ -779,6 +766,27 @@ function openModal(i){
     </div>
   </div>`;
   document.getElementById('modal').classList.add('open');
+}
+
+function containerSection(o){
+  if(!o.container_number) return "";
+  var color=getContainerStatusColor(o.container_status_id);
+  var url=o.container_tracker_url||"https://fleek-container-mgmt.netlify.app/";
+  var h="";
+  h+='<div class="msection" style="grid-column:1/-1">';
+  h+='<div class="mstitle">🚢 CONTAINER &nbsp;';
+  h+='<a href="'+url+'" target="_blank" style="font-size:10px;color:#4a90e2;text-decoration:none;font-weight:500;border:1px solid #4a90e233;padding:2px 8px;border-radius:4px;">Open Tracker &#x2197;</a></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;">';
+  h+=mr("Container #",o.container_number);
+  h+=mr("Status",'<span style="color:'+color+'">&#x25cf;</span> '+(o.container_status||"&mdash;"));
+  h+=mr("Route",(o.port_of_origin||"?")+' &rarr; '+(o.port_of_discharge||"?"));
+  h+=mr("Shipment Type",o.shipment_type||"&mdash;");
+  h+=mr("Size",o.container_size||"&mdash;");
+  h+=mr("Weight",o.container_gross_weight?o.container_gross_weight+"kg":"&mdash;");
+  h+=mr("Dispatched",(o.container_dispatched_date||"").substring(0,10)||"&mdash;");
+  h+=mr("Delivered",(o.container_delivered_date||"").substring(0,10)||"&mdash;");
+  h+="</div></div>";
+  return h;
 }
 
 function mr(label,val){return`<div class="mrow"><span class="mlabel">${label}</span><span class="mval">${val||'—'}</span></div>`;}
