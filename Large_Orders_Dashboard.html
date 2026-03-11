@@ -725,18 +725,18 @@ function openModal(i){
       ${mr('In-Transit Aging',o.in_transit_aging?(o.in_transit_aging+'d'):'—')}
       ${mr('Ship Mode',o.shipping_mode||'—')}${mr('Ship Type',o.shipping_type||'—')}${mr('IOR',o.ior||'—')}
     </div>
-    \${o.container_number ? `
+    ${o.container_number ? `
     <div class="msection" style="grid-column:1/-1">
-      <div class="mstitle">🚢 CONTAINER &nbsp;<a href="\${o.container_tracker_url||'https://fleek-container-mgmt.netlify.app/'}" target="_blank" style="font-size:10px;color:#4a90e2;text-decoration:none;font-weight:500;border:1px solid #4a90e233;padding:2px 8px;border-radius:4px;">Open Tracker ↗</a></div>
+      <div class="mstitle">🚢 CONTAINER &nbsp;<a href="${o.container_tracker_url||'https://fleek-container-mgmt.netlify.app/'}" target="_blank" style="font-size:10px;color:#4a90e2;text-decoration:none;font-weight:500;border:1px solid #4a90e233;padding:2px 8px;border-radius:4px;">Open Tracker ↗</a></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;">
-        \${mr('Container #',o.container_number)}
-        \${mr('Status',o.container_status||'—')}
-        \${mr('Route',(o.port_of_origin||'?')+' → '+(o.port_of_discharge||'?'))}
-        \${mr('Shipment Type',o.shipment_type||'—')}
-        \${mr('Size',o.container_size||'—')}
-        \${mr('Weight',(o.container_gross_weight?o.container_gross_weight+'kg':'—'))}
-        \${mr('Dispatched',(o.container_dispatched_date||'').substring(0,10)||'—')}
-        \${mr('Delivered',(o.container_delivered_date||'').substring(0,10)||'—')}
+        ${mr('Container #',o.container_number)}
+        ${mr('Status',o.container_status||'—')}
+        ${mr('Route',(o.port_of_origin||'?')+' → '+(o.port_of_discharge||'?'))}
+        ${mr('Shipment Type',o.shipment_type||'—')}
+        ${mr('Size',o.container_size||'—')}
+        ${mr('Weight',(o.container_gross_weight?o.container_gross_weight+'kg':'—'))}
+        ${mr('Dispatched',(o.container_dispatched_date||'').substring(0,10)||'—')}
+        ${mr('Delivered',(o.container_delivered_date||'').substring(0,10)||'—')}
       </div>
     </div>` : ''}
     <div class="msection">
