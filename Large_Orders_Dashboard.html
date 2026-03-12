@@ -516,10 +516,18 @@ async function loadDashboard(isRefresh) {
   filtered = [...ORDERS];
   hideLoading();
   renderOverview();
+  renderContainers();          // always re-render containers after fresh fetch
   // Re-build filters with fresh data
   amInited = false;
+  // Clear am-select options so they rebuild cleanly on next visit
+  const amSel = document.getElementById('am-select');
+  if (amSel) while (amSel.options.length > 1) amSel.remove(1);
   initFilters();
   applyFilters();
+  // If AM tab is currently active, re-init it too
+  if (document.getElementById('page-am') && document.getElementById('page-am').classList.contains('active')) {
+    initAM();
+  }
 
   // 4. Update header
   const now    = new Date();
